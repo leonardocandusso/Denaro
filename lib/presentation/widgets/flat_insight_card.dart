@@ -25,7 +25,7 @@ class FlatInsightCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surfaceContainerLowest, // Contraste fundo
           borderRadius: BorderRadius.circular(4.0),
-          border: Border.all(color: isIncome ? AppColors.primary.withOpacity(0.3) : AppColors.secondary.withOpacity(0.3)),
+          border: Border.all(color: isIncome ? AppColors.primary.withValues(alpha: 0.3) : AppColors.secondary.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

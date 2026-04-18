@@ -1,31 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'transactions_provider.dart';
+part of 'dashboard_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$transactionsNotifierHash() =>
-    r'd2a450ae154f603da514a3120d4b0fcc26887e56';
+String _$dashboardControllerHash() =>
+    r'a10c42439d2ab4477ac5225833910d7cd68ec902';
 
-/// See also [TransactionsNotifier].
-@ProviderFor(TransactionsNotifier)
-final transactionsNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<
-      TransactionsNotifier,
-      List<TransactionEntity>
-    >.internal(
-      TransactionsNotifier.new,
-      name: r'transactionsNotifierProvider',
+/// See also [DashboardController].
+@ProviderFor(DashboardController)
+final dashboardControllerProvider =
+    AutoDisposeNotifierProvider<DashboardController, DashboardMetrics>.internal(
+      DashboardController.new,
+      name: r'dashboardControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$transactionsNotifierHash,
+          : _$dashboardControllerHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$TransactionsNotifier =
-    AutoDisposeAsyncNotifier<List<TransactionEntity>>;
+typedef _$DashboardController = AutoDisposeNotifier<DashboardMetrics>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

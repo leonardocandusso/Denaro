@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'package:intl/intl.dart';
 import '../../core/theme/colors.dart';
 import '../../widgets/flat_insight_card.dart';
 import '../../widgets/transaction_row.dart';
 import '../../widgets/chart_placeholder.dart';
+import '../../providers/transactions_provider.dart';
+import '../../providers/dashboard_controller.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Assistindo aos Agregadores O(N) e a Lista Pura do Motor
+    final txAsync = ref.watch(transactionsNotifierProvider);
+    final metrics = ref.watch(dashboardControllerProvider);
+    
+    // Formatador Monetario nativo (Fase 4 HFT standard)
+    final fmt = NumberFormat.simpleCurrency(locale: 'en_US', decimalDigits: 2);
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: Row(
@@ -89,8 +101,19 @@ class DashboardPage extends StatelessWidget {
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20)
                         ),
-                        onPressed: () { 
-                          // TODO: Invocar Riverpod CsvParserProvider (Tratador Anti-Exfiltração) 
+                        onPressed: () async { 
+                          // Chamada Segura Nivel O.S (Windows File System)
+                          FilePickerResult? result = await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['csv'], 
+                          );
+
+                          if (result != null && result.files.single.path != null) {
+                            final filePayload = await File(result.files.single.path!).readAsString();
+                            
+                            // Dispara a Sub-thread Cega via Riverpod sem Jank na tela!
+                            ref.read(transactionsNotifierProvider.notifier).importStringLedger(filePayload, const []);
+                          }
                         },
                         icon: const Icon(Icons.upload_file, size: 18),
                         label: const Text('IMPORT CSV', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w800, letterSpacing: 1.5, fontSize: 11)),
@@ -99,14 +122,14 @@ class DashboardPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 48),
                   
-                  // Insights Minimalista Row
-                  const Row(
+                  // Insights Minimalista Row via DashboardController Binding
+                  Row(
                     children: [
-                      FlatInsightCard(title: 'Net Position', amount: '\$ 42,850.00', isIncome: true, icon: Icons.account_balance),
-                      SizedBox(width: 16),
-                      FlatInsightCard(title: 'Inflow', amount: '+ \$ 15,200.00', isIncome: true, icon: Icons.arrow_downward),
-                      SizedBox(width: 16),
-                      FlatInsightCard(title: 'Outflow', amount: '- \$ 3,450.00', isIncome: false, icon: Icons.arrow_upward),
+                      FlatInsightCard(title: 'Net Position', amount: fmt.format(metrics.netPosition), isIncome: metrics.netPosition >= 0, icon: Icons.account_balance),
+                      const SizedBox(width: 16),
+                      FlatInsightCard(title: 'Inflow', amount: '+ ${fmt.format(metrics.totalInflow)}', isIncome: true, icon: Icons.arrow_downward),
+                      const SizedBox(width: 16),
+                      FlatInsightCard(title: 'Outflow', amount: '- ${fmt.format(metrics.totalOutflow)}', isIncome: false, icon: Icons.arrow_upward),
                     ],
                   ),
                   const SizedBox(height: 48),
@@ -139,17 +162,36 @@ class DashboardPage extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: AppColors.surfaceContainer,
-                        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
                         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(4), bottomRight: Radius.circular(4))
                       ),
-                      child: ListView(
-                        children: const [
-                          // Entradas Simuladas Pós-Fase 2 (Emulação visual exata do mock aprovado)
-                          TransactionRow(dateStr: '12 OCT 2026', description: 'UBER PGTO', category: 'TRANSPORT', amountStr: '- 25.50', isIncome: false),
-                          TransactionRow(dateStr: '12 OCT 2026', description: 'WHOLE FOODS MKT', category: 'GROCERIES', amountStr: '- 142.80', isIncome: false),
-                          TransactionRow(dateStr: '11 OCT 2026', description: 'CORP SALARY DIRECT DEP', category: 'INCOME', amountStr: '+ 5,200.00', isIncome: true),
-                          TransactionRow(dateStr: '10 OCT 2026', description: 'AMAZON WEB SERVICES', category: 'SOFTWARE', amountStr: '- 85.00', isIncome: false),
-                        ],
+                      // Ledger Async Binding com Jank-free UI State
+                      child: txAsync.when(
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 1.5)
+                        ),
+                        error: (err, stack) => Center(
+                          child: Text(err.toString(), style: const TextStyle(color: AppColors.error, fontFamily: 'RobotoMono', fontSize: 11))
+                        ),
+                        data: (list) {
+                          if (list.isEmpty) {
+                            return const Center(
+                              child: Text('WAITING FOR DATA PAYLOAD', style: TextStyle(color: AppColors.onSurfaceVariant, fontFamily: 'RobotoMono', fontSize: 10, letterSpacing: 2))
+                            );
+                          }
+
+                          return ListView(
+                            children: list.map((tx) {
+                              return TransactionRow(
+                                dateStr: '${tx.transactionDate.day.toString().padLeft(2, '0')}/${tx.transactionDate.month.toString().padLeft(2, '0')}/${tx.transactionDate.year}', 
+                                description: tx.rawDescription, 
+                                category: tx.resolvedCategory ?? 'RAW', 
+                                amountStr: (tx.amount.value > 0 ? '+ ' : '- ') + fmt.format(tx.amount.value.abs()).replaceAll('\$', ''), 
+                                isIncome: tx.amount.value > 0
+                              );
+                            }).toList(),
+                          );
+                        }
                       ),
                     ),
                   )

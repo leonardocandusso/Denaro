@@ -13,7 +13,7 @@ class ChartPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceContainer,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
@@ -40,7 +40,7 @@ class _DottedGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.outlineVariant.withOpacity(0.3)
+      ..color = AppColors.outlineVariant.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
     
     // Desenha o Grid pontilhado exato do CSS radial-gradient (16px spacing)

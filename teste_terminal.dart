@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'package:denaro/domain/entities/classification_rule_entity.dart';
 import 'package:denaro/domain/usecases/analytics_engine_usecase.dart';
 import 'package:denaro/domain/usecases/csv_parser_usecase.dart';

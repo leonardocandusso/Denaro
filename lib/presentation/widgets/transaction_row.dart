@@ -37,7 +37,7 @@ class TransactionRow extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainerHigh,
-                  border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
+                  border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.5)),
                   borderRadius: BorderRadius.circular(2)
                 ),
                 child: Text(category.toUpperCase(), style: const TextStyle(fontFamily: 'Inter', fontSize: 9, color: AppColors.onSurface, letterSpacing: 1, fontWeight: FontWeight.bold)),

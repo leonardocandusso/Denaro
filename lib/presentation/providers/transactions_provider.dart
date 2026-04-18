@@ -24,7 +24,7 @@ class TransactionsNotifier extends _$TransactionsNotifier {
     parseResult.match(
       (failure) async {
         // RedTeam Policy: Rastro restrito aos Logs criptografados. Nunca pichar a UI.
-        await LocalLogger.log('SEG-CSV_REJEITADO', 'Tentativa de importação contendo sujeira ou Regex overflow: ${failure.message}');
+        await LocalLogger.log('Tentativa de importação contendo sujeira ou Regex overflow: ${failure.message}', level: 'SEG-CSV_REJEITADO');
         
         // Retornamos ao Estado Seguro para a UI
         state = AsyncValue.error("O arquivo contém caracteres não homologados. Foi bloqueado no painel local.", StackTrace.current);
@@ -36,7 +36,7 @@ class TransactionsNotifier extends _$TransactionsNotifier {
 
         classifiedResult.match(
           (failure) async {
-            await LocalLogger.log('SEG-ANALYTICS_REJEITADO', 'Engine O(N) falhou no loop: ${failure.message}');
+            await LocalLogger.log('Engine O(N) falhou no loop: ${failure.message}', level: 'SEG-ANALYTICS_REJEITADO');
             state = AsyncValue.error("Falha matemática na indexação de categorias.", StackTrace.current);
           },
           (classified) {
