@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/logger/local_logger.dart';
 import 'data/database/database_provider.dart';
+import 'presentation/core/theme/app_theme.dart';
+import 'presentation/pages/dashboard/dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,18 +23,9 @@ class DenaroApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Denaro',
-      themeMode: ThemeMode.system, // Preparação para Dark/Light mode da Fase 3
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.light),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Denaro - Fundação Data Carregada.'),
-        ),
-      ),
+      themeMode: ThemeMode.dark, // Forçado para Dark institucional
+      darkTheme: AppTheme.darkTheme,
+      home: const DashboardPage(),
     );
   }
 }
