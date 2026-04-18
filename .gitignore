@@ -1,0 +1,16 @@
+# Denaro App Security Rules
+*.db
+*.db-shm
+*.db-wal
+*.bak
+*.log
+*.key
+.env
+secret/
+
+# Flutter/Dart Defaults
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies

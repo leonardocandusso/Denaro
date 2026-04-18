@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "Fazendo a verificacao de Qualidade de Codigo do Denaro..."
+flutter analyze
+if [ $? -ne 0 ]; then
+  echo "Sec: Linter bloqueou o commit. Corriga o codigo antes de tentar novamente."
+  exit 1
+fi
+
+flutter test
+if [ $? -ne 0 ]; then
+  echo "Sec: Testes TDD reprovaram. Commit cancelado. O Dominio deve estar 100% blindado."
+  exit 1
+fi
